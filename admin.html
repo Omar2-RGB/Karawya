@@ -1,30 +1,34 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>لوحة التحكم - Karawya House</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Cairo', sans-serif;
       background: #f9f3ef;
       padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
     h1 {
       text-align: center;
       color: #a36d4f;
+      margin-bottom: 20px;
     }
     form {
       background: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: auto;
+      margin-bottom: 30px;
     }
     label {
       display: block;
       margin-top: 15px;
+      font-weight: bold;
     }
     input, textarea {
       width: 100%;
@@ -32,6 +36,8 @@
       border: 1px solid #ccc;
       border-radius: 5px;
       margin-top: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
     }
     button {
       margin-top: 20px;
@@ -44,182 +50,222 @@
       font-size: 16px;
       cursor: pointer;
     }
-    .success {
-      color: green;
-      text-align: center;
-      margin-top: 15px;
-    }
     .product-list {
-      max-width: 800px;
-      margin: 40px auto;
+      list-style: none;
+      padding: 0;
     }
     .product-item {
       background: #fff;
-      margin-bottom: 20px;
       padding: 15px;
+      margin-bottom: 15px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 15px;
     }
     .product-item img {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       object-fit: cover;
       border-radius: 8px;
+      border: 1px solid #ccc;
     }
     .product-info {
       flex: 1;
     }
     .product-info h3 {
-      margin: 0 0 5px;
+      margin: 0 0 5px 0;
     }
-    .product-actions button {
-      margin-left: 10px;
-      padding: 8px 12px;
+    .product-info p {
+      margin: 2px 0;
+      font-size: 13px;
+      color: #555;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    .actions button {
       border: none;
+      padding: 6px 12px;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
+      color: white;
     }
     .edit-btn {
-      background: #f0ad4e;
-      color: white;
+      background-color: #f0ad4e;
     }
     .delete-btn {
-      background: #d9534f;
-      color: white;
+      background-color: #d9534f;
     }
-    .logout-btn {
-      background: #d9534f;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      float: left;
-      margin: 10px;
+    .success-msg {
+      text-align: center;
+      color: green;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .error-msg {
+      text-align: center;
+      color: red;
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
-<body>  <script>
-    // التحقق من تسجيل الدخول
-    if (localStorage.getItem('loggedIn') !== 'true') {
-      window.location.href = 'login.html';
-    }
-  </script><button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+<body>
 
-  <h1>لوحة التحكم - Karawya House</h1>  <form id="productForm">
+  <h1>لوحة التحكم - Karawya House</h1>
+
+  <form id="productForm">
+    <input type="hidden" id="productId" value="" />
     <label for="name">اسم المنتج:</label>
-    <input type="text" id="name" required><label for="desc">الوصف:</label>
-<textarea id="desc" required></textarea>
+    <input type="text" id="name" required />
+    <label for="desc">الوصف:</label>
+    <textarea id="desc" required></textarea>
+    <label for="price">السعر (د.ك):</label>
+    <input type="number" id="price" required />
+    <label for="image">رابط صورة المنتج (يمكن رفع الصورة خارجيًا):</label>
+    <input type="url" id="image" placeholder="https://example.com/image.jpg" />
+    <button type="submit">حفظ المنتج</button>
+  </form>
 
-<label for="price">السعر (د.ك):</label>
-<input type="number" id="price" required>
+  <ul class="product-list" id="productList"></ul>
 
-<label for="image">صورة المنتج:</label>
-<input type="file" id="image" accept="image/*">
+  <div class="success-msg" id="successMsg"></div>
+  <div class="error-msg" id="errorMsg"></div>
 
-<button type="submit">إضافة / تعديل المنتج</button>
-<div class="success" id="successMsg"></div>
+<script>
+  const API_URL = 'https://api.sheetbest.com/sheets/2b0e1eee-63b6-4c69-96e6-2a08b12c9d67'; // غيّر إلى API خاصتك
 
-  </form>  <div class="product-list" id="productList"></div>  <script>
-    let products = JSON.parse(localStorage.getItem('products')) || [];
-    let editIndex = -1;
+  const productForm = document.getElementById('productForm');
+  const productList = document.getElementById('productList');
+  const successMsg = document.getElementById('successMsg');
+  const errorMsg = document.getElementById('errorMsg');
 
-    const form = document.getElementById('productForm');
-    const successMsg = document.getElementById('successMsg');
-    const productList = document.getElementById('productList');
+  let products = [];
+  let editId = null;
 
-    function saveProducts() {
-      localStorage.setItem('products', JSON.stringify(products));
+  async function fetchProducts() {
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('فشل جلب البيانات');
+      products = await res.json();
+      renderProducts();
+    } catch (error) {
+      showError(error.message);
     }
+  }
 
-    function renderProducts() {
-      productList.innerHTML = '';
-      products.forEach((product, index) => {
-        const item = document.createElement('div');
-        item.className = 'product-item';
-        item.innerHTML = `
-          <img src="${product.image}" alt="صورة">
+  function renderProducts() {
+    productList.innerHTML = '';
+    if (products.length === 0) {
+      productList.innerHTML = '<li>لا توجد منتجات بعد.</li>';
+      return;
+    }
+    products.forEach(product => {
+      productList.insertAdjacentHTML('beforeend', `
+        <li class="product-item">
+          <img src="${product.image || 'https://via.placeholder.com/80'}" alt="${product.name}" />
           <div class="product-info">
             <h3>${product.name}</h3>
             <p>${product.desc}</p>
-            <strong>${product.price} د.ك</strong>
+            <p><strong>${product.price} د.ك</strong></p>
           </div>
-          <div class="product-actions">
-            <button class="edit-btn" onclick="editProduct(${index})">تعديل</button>
-            <button class="delete-btn" onclick="deleteProduct(${index})">حذف</button>
+          <div class="actions">
+            <button class="edit-btn" onclick="startEdit('${product._id || product.id || product.row}')">تعديل</button>
+            <button class="delete-btn" onclick="deleteProduct('${product._id || product.id || product.row}')">حذف</button>
           </div>
-        `;
-        productList.appendChild(item);
-      });
-    }
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const name = document.getElementById('name').value;
-      const desc = document.getElementById('desc').value;
-      const price = document.getElementById('price').value;
-      const imageInput = document.getElementById('image');
-      const file = imageInput.files[0];
-
-      const handleSubmit = (image) => {
-        const product = { name, desc, price, image };
-
-        if (editIndex > -1) {
-          products[editIndex] = product;
-          editIndex = -1;
-        } else {
-          products.push(product);
-        }
-
-        saveProducts();
-        renderProducts();
-        form.reset();
-        successMsg.textContent = "تم الحفظ بنجاح!";
-        setTimeout(() => successMsg.textContent = '', 3000);
-      };
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          handleSubmit(event.target.result);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        if (editIndex > -1) {
-          handleSubmit(products[editIndex].image); // احتفظ بالصورة القديمة عند التعديل
-        } else {
-          alert("يرجى اختيار صورة للمنتج.");
-        }
-      }
+        </li>
+      `);
     });
+  }
 
-    function deleteProduct(index) {
-      if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-        products.splice(index, 1);
-        saveProducts();
-        renderProducts();
+  function showSuccess(msg) {
+    successMsg.textContent = msg;
+    errorMsg.textContent = '';
+    setTimeout(() => successMsg.textContent = '', 3000);
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    successMsg.textContent = '';
+    setTimeout(() => errorMsg.textContent = '', 3000);
+  }
+
+  productForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value.trim();
+    const desc = document.getElementById('desc').value.trim();
+    const price = Number(document.getElementById('price').value);
+    const image = document.getElementById('image').value.trim();
+
+    if (!name || !desc || !price) {
+      showError('يرجى تعبئة جميع الحقول المطلوبة');
+      return;
+    }
+
+    const productData = { name, desc, price, image };
+
+    try {
+      if (editId) {
+        // تعديل المنتج
+        const res = await fetch(`${API_URL}/${editId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productData),
+        });
+        if (!res.ok) throw new Error('فشل تعديل المنتج');
+        showSuccess('تم تعديل المنتج بنجاح');
+      } else {
+        // إضافة منتج جديد
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productData),
+        });
+        if (!res.ok) throw new Error('فشل إضافة المنتج');
+        showSuccess('تم إضافة المنتج بنجاح');
       }
-    }
 
-    function editProduct(index) {
-      const product = products[index];
-      document.getElementById('name').value = product.name;
-      document.getElementById('desc').value = product.desc;
-      document.getElementById('price').value = product.price;
-      editIndex = index;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+      productForm.reset();
+      editId = null;
+      fetchProducts();
 
-    function logout() {
-      localStorage.removeItem('loggedIn');
-      window.location.href = 'login.html';
+    } catch (error) {
+      showError(error.message);
     }
+  });
 
-    renderProducts();
-  </script></body>
+  function startEdit(id) {
+    const product = products.find(p => (p._id || p.id || p.row) == id);
+    if (!product) return;
+    editId = id;
+    document.getElementById('name').value = product.name;
+    document.getElementById('desc').value = product.desc;
+    document.getElementById('price').value = product.price;
+    document.getElementById('image').value = product.image || '';
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('فشل حذف المنتج');
+      showSuccess('تم حذف المنتج بنجاح');
+      fetchProducts();
+    } catch (error) {
+      showError(error.message);
+    }
+  }
+
+  // تحميل المنتجات عند فتح الصفحة
+  fetchProducts();
+</script>
+
+</body>
 </html>
