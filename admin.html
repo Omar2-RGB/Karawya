@@ -139,8 +139,8 @@
   <div class="error-msg" id="errorMsg"></div>
 
 <script>
-  const API_URL = 'https://api.sheetbest.com/sheets/2b0e1eee-63b6-4c69-96e6-2a08b12c9d67'; // غيّر إلى API الخاص بك
-  const IMGBB_API_KEY = 'd38453b7e7b307c198aa6e4d68ac836d'; // مفتاح Imgbb الخاص بك
+  const API_URL = 'https://api.sheetbest.com/sheets/2b0e1eee-63b6-4c69-96e6-2a08b12c9d67';
+  const IMGBB_API_KEY = 'd38453b7e7b307c198aa6e4d68ac836d';
 
   const productForm = document.getElementById('productForm');
   const productList = document.getElementById('productList');
@@ -179,8 +179,8 @@
             <p><strong>${product.price} د.ك</strong></p>
           </div>
           <div class="actions">
-            <button class="edit-btn" onclick="startEdit('${product._id || product.id || product.row}')">تعديل</button>
-            <button class="delete-btn" onclick="deleteProduct('${product._id || product.id || product.row}')">حذف</button>
+            <button class="edit-btn" onclick="startEdit('${product.id}')">تعديل</button>
+            <button class="delete-btn" onclick="deleteProduct('${product.id}')">حذف</button>
           </div>
         </li>
       `);
@@ -239,7 +239,8 @@
       return;
     }
 
-    const productData = { name, desc, price, image };
+    const id = editId || Date.now().toString(); // توليد ID تلقائي
+    const productData = { id, name, desc, price, image };
 
     try {
       if (editId) {
@@ -272,7 +273,7 @@
   });
 
   function startEdit(id) {
-    const product = products.find(p => (p._id || p.id || p.row) == id);
+    const product = products.find(p => p.id == id);
     if (!product) return;
     editId = id;
     document.getElementById('name').value = product.name;
@@ -295,7 +296,6 @@
     }
   }
 
-  // تحميل المنتجات عند فتح الصفحة
   fetchProducts();
 </script>
 
