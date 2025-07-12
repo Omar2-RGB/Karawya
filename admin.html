@@ -126,8 +126,10 @@
     <textarea id="desc" required></textarea>
     <label for="price">السعر (د.ك):</label>
     <input type="number" id="price" required />
-    <label for="image">رابط صورة المنتج (يمكن رفع الصورة خارجيًا):</label>
+    <label for="image">رابط صورة المنتج (يمكن رفع الصورة خارجيًا أو رفع مباشر):</label>
     <input type="url" id="image" placeholder="https://example.com/image.jpg" />
+    <label for="uploadImage">رفع صورة مباشرة:</label>
+    <input type="file" id="uploadImage" accept="image/*" />
     <button type="submit">حفظ المنتج</button>
   </form>
 
@@ -137,12 +139,15 @@
   <div class="error-msg" id="errorMsg"></div>
 
 <script>
-  const API_URL = 'https://api.sheetbest.com/sheets/2b0e1eee-63b6-4c69-96e6-2a08b12c9d67'; // غيّر إلى API خاصتك
+  const API_URL = 'https://api.sheetbest.com/sheets/2b0e1eee-63b6-4c69-96e6-2a08b12c9d67'; // غيّر إلى API الخاص بك
+  const IMGBB_API_KEY = 'd38453b7e7b307c198aa6e4d68ac836d'; // مفتاح Imgbb الخاص بك
 
   const productForm = document.getElementById('productForm');
   const productList = document.getElementById('productList');
   const successMsg = document.getElementById('successMsg');
   const errorMsg = document.getElementById('errorMsg');
+  const uploadImageInput = document.getElementById('uploadImage');
+  const imageInput = document.getElementById('image');
 
   let products = [];
   let editId = null;
@@ -194,13 +199,40 @@
     setTimeout(() => errorMsg.textContent = '', 3000);
   }
 
+  uploadImageInput.addEventListener('change', async () => {
+    const file = uploadImageInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    showSuccess('جاري رفع الصورة...');
+
+    try {
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        const imageUrl = data.data.url;
+        imageInput.value = imageUrl;
+        showSuccess('تم رفع الصورة بنجاح');
+      } else {
+        throw new Error('فشل رفع الصورة');
+      }
+    } catch (error) {
+      showError(error.message);
+    }
+  });
+
   productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const name = document.getElementById('name').value.trim();
     const desc = document.getElementById('desc').value.trim();
     const price = Number(document.getElementById('price').value);
-    const image = document.getElementById('image').value.trim();
+    const image = imageInput.value.trim();
 
     if (!name || !desc || !price) {
       showError('يرجى تعبئة جميع الحقول المطلوبة');
