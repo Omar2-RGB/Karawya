@@ -186,7 +186,7 @@
     </div>
 
     <div class="products" id="product-list">
-      <!-- سيتم ملء المنتجات هنا باستخدام JavaScript -->
+      <!-- سيتم ملء المنتجات هنا -->
     </div>
   </section>
 
@@ -206,8 +206,24 @@
       const searchInput = document.getElementById('searchInput');
       const sortSelect = document.getElementById('sortSelect');
 
-      let products = JSON.parse(localStorage.getItem('products')) || [];
-      let filteredProducts = [...products];
+      let products = [];
+      let filteredProducts = [];
+
+      // رابط API الخاص بجوجل شيتس عبر SheetBest
+      const apiURL = 'https://api.sheetbest.com/sheets/2b0e1eee-63b6-4c69-96e6-2a08b12c9d67';
+
+      // جلب البيانات من API
+      async function fetchProducts() {
+        try {
+          const response = await fetch(apiURL);
+          if (!response.ok) throw new Error('فشل جلب البيانات');
+          products = await response.json();
+          filteredProducts = [...products];
+          displayProducts(filteredProducts);
+        } catch (error) {
+          productList.innerHTML = `<p>حدث خطأ أثناء تحميل المنتجات: ${error.message}</p>`;
+        }
+      }
 
       function displayProducts(items) {
         productList.innerHTML = '';
@@ -260,8 +276,10 @@
         displayProducts(filteredProducts);
       }
 
-      displayProducts(products);
+      // تحميل المنتجات أولاً
+      fetchProducts();
 
+      // أحداث البحث والفرز
       searchInput.addEventListener('input', filterAndSort);
       sortSelect.addEventListener('change', filterAndSort);
     });
