@@ -54,10 +54,10 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
-      flex-wrap: wrap; /* يخلي الحقول تنتقل لسطر ثاني إذا ضاق العرض */
+      flex-wrap: wrap;
     }
     #searchInput {
-      flex: 1 1 250px; /* يتمدد لكن لا يقل عن 250px */
+      flex: 1 1 250px;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -67,7 +67,7 @@
       outline: none;
     }
     #sortSelect {
-      flex: 0 0 180px; /* حجم ثابت */
+      flex: 0 0 180px;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -116,13 +116,13 @@
     }
     .whatsapp-btn {
       display: inline-block;
-      margin-top: 28px;
+      margin-top: 15px;
       background: #25d366;
       color: white;
-      padding: 14px 30px;
+      padding: 10px 22px;
       border-radius: 30px;
       text-decoration: none;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
       box-shadow: 0 4px 12px rgba(37,211,102,0.5);
       transition: background-color 0.3s ease;
@@ -137,6 +137,7 @@
       font-size: 15px;
       color: #4b3a2a;
       box-shadow: inset 0 1px 0 #d3c7b3;
+      margin-top: 40px;
     }
     footer p {
       margin: 6px 0;
@@ -187,8 +188,6 @@
     <div class="products" id="product-list">
       <!-- سيتم ملء المنتجات هنا باستخدام JavaScript -->
     </div>
-
-    <a class="whatsapp-btn" href="https://wa.me/96555878487" target="_blank" rel="noopener">اطلب عبر واتساب</a>
   </section>
 
   <footer>
@@ -222,11 +221,21 @@
           const productCard = document.createElement('div');
           productCard.classList.add('product');
 
+          const message = encodeURIComponent(`مرحبًا، أود طلب المنتج: ${product.name}`);
+
           productCard.innerHTML = `
             <img src="${product.image}" alt="${product.name}" />
             <h3>${product.name}</h3>
             <p>${product.desc}</p>
             <p class="price">${product.price} د.ك</p>
+            <a 
+              href="https://wa.me/96555878487?text=${message}" 
+              target="_blank" 
+              rel="noopener" 
+              class="whatsapp-btn"
+            >
+              اطلب هذا المنتج
+            </a>
           `;
 
           productList.appendChild(productCard);
@@ -251,13 +260,9 @@
         displayProducts(filteredProducts);
       }
 
-      // عرض كل المنتجات أولاً
       displayProducts(products);
 
-      // حدث البحث
       searchInput.addEventListener('input', filterAndSort);
-
-      // حدث الفرز
       sortSelect.addEventListener('change', filterAndSort);
     });
   </script>
