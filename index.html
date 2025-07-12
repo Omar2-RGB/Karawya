@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Karawya House</title>
+  
+  <!-- خط Cairo -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome لأيقونات السوشيال -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fffaf5;
+      color: #4b3a2a;
+    }
+    header {
+      background: #a36d4f;
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(163,109,79,0.5);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 1.5px;
+    }
+    header p {
+      margin: 8px 0 0;
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+    section {
+      padding: 40px 20px;
+      text-align: center;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .search-sort-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 25px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      flex-wrap: wrap; /* يخلي الحقول تنتقل لسطر ثاني إذا ضاق العرض */
+    }
+    #searchInput {
+      flex: 1 1 250px; /* يتمدد لكن لا يقل عن 250px */
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+      min-width: 200px;
+      outline: none;
+    }
+    #sortSelect {
+      flex: 0 0 180px; /* حجم ثابت */
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      padding: 0 20px;
+    }
+    .product {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(163,109,79,0.15);
+      padding: 18px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .product:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 16px rgba(163,109,79,0.3);
+    }
+    .product img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .product h3 {
+      margin: 10px 0 6px;
+      font-size: 20px;
+      color: #7a5639;
+    }
+    .product p {
+      color: #5b4a3e;
+      font-size: 14px;
+      line-height: 1.4;
+      min-height: 48px;
+    }
+    .product .price {
+      color: #a36d4f;
+      font-weight: 700;
+      font-size: 17px;
+      margin-top: 10px;
+    }
+    .whatsapp-btn {
+      display: inline-block;
+      margin-top: 28px;
+      background: #25d366;
+      color: white;
+      padding: 14px 30px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(37,211,102,0.5);
+      transition: background-color 0.3s ease;
+    }
+    .whatsapp-btn:hover {
+      background: #1ebe57;
+    }
+    footer {
+      background: #f6f1ea;
+      text-align: center;
+      padding: 22px 20px;
+      font-size: 15px;
+      color: #4b3a2a;
+      box-shadow: inset 0 1px 0 #d3c7b3;
+    }
+    footer p {
+      margin: 6px 0;
+    }
+    footer .insta-link {
+      color: #a36d4f;
+      font-weight: 700;
+      text-decoration: none;
+      margin-right: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.3s ease;
+      font-size: 18px;
+    }
+    footer .insta-link:hover {
+      color: #c05628;
+    }
+    footer .insta-link i {
+      font-size: 22px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Karawya House</h1>
+    <p>نكهات تقليدية بلمسة عصرية للمواليد والمناسبات</p>
+  </header>
+
+  <section>
+    <h2>منتجاتنا</h2>
+
+    <div class="search-sort-container">
+      <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="ابحث عن منتج..." 
+        aria-label="ابحث عن منتج"
+      />
+      <select id="sortSelect" aria-label="فرز المنتجات">
+        <option value="default">فرز حسب</option>
+        <option value="priceAsc">السعر من الأقل للأعلى</option>
+        <option value="priceDesc">السعر من الأعلى للأقل</option>
+      </select>
+    </div>
+
+    <div class="products" id="product-list">
+      <!-- سيتم ملء المنتجات هنا باستخدام JavaScript -->
+    </div>
+
+    <a class="whatsapp-btn" href="https://wa.me/96555878487" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+  </section>
+
+  <footer>
+    <p>جميع الحقوق محفوظة &copy; Karawya House 2025</p>
+    <p>
+      تابعونا على 
+      <a href="https://www.instagram.com/karawya_house" target="_blank" class="insta-link" rel="noopener">
+        <i class="fab fa-instagram"></i> إنستغرام
+      </a>
+    </p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const productList = document.getElementById('product-list');
+      const searchInput = document.getElementById('searchInput');
+      const sortSelect = document.getElementById('sortSelect');
+
+      let products = JSON.parse(localStorage.getItem('products')) || [];
+      let filteredProducts = [...products];
+
+      function displayProducts(items) {
+        productList.innerHTML = '';
+
+        if (items.length === 0) {
+          productList.innerHTML = '<p>لا توجد منتجات تطابق البحث.</p>';
+          return;
+        }
+
+        items.forEach(product => {
+          const productCard = document.createElement('div');
+          productCard.classList.add('product');
+
+          productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" />
+            <h3>${product.name}</h3>
+            <p>${product.desc}</p>
+            <p class="price">${product.price} د.ك</p>
+          `;
+
+          productList.appendChild(productCard);
+        });
+      }
+
+      function filterAndSort() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+
+        filteredProducts = products.filter(product => 
+          product.name.toLowerCase().includes(searchTerm) ||
+          product.desc.toLowerCase().includes(searchTerm)
+        );
+
+        const sortValue = sortSelect.value;
+        if (sortValue === 'priceAsc') {
+          filteredProducts.sort((a, b) => Number(a.price) - Number(b.price));
+        } else if (sortValue === 'priceDesc') {
+          filteredProducts.sort((a, b) => Number(b.price) - Number(a.price));
+        }
+
+        displayProducts(filteredProducts);
+      }
+
+      // عرض كل المنتجات أولاً
+      displayProducts(products);
+
+      // حدث البحث
+      searchInput.addEventListener('input', filterAndSort);
+
+      // حدث الفرز
+      sortSelect.addEventListener('change', filterAndSort);
+    });
+  </script>
+
+</body>
+</html>

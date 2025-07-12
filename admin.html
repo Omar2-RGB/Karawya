@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - Karawya House</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f9f3ef;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #a36d4f;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      background: #a36d4f;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 15px;
+    }
+    .product-list {
+      max-width: 800px;
+      margin: 40px auto;
+    }
+    .product-item {
+      background: #fff;
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .product-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .product-info {
+      flex: 1;
+    }
+    .product-info h3 {
+      margin: 0 0 5px;
+    }
+    .product-actions button {
+      margin-left: 10px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .edit-btn {
+      background: #f0ad4e;
+      color: white;
+    }
+    .delete-btn {
+      background: #d9534f;
+      color: white;
+    }
+    .logout-btn {
+      background: #d9534f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      float: left;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>  <script>
+    // التحقق من تسجيل الدخول
+    if (localStorage.getItem('loggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
+  </script><button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+
+  <h1>لوحة التحكم - Karawya House</h1>  <form id="productForm">
+    <label for="name">اسم المنتج:</label>
+    <input type="text" id="name" required><label for="desc">الوصف:</label>
+<textarea id="desc" required></textarea>
+
+<label for="price">السعر (د.ك):</label>
+<input type="number" id="price" required>
+
+<label for="image">صورة المنتج:</label>
+<input type="file" id="image" accept="image/*">
+
+<button type="submit">إضافة / تعديل المنتج</button>
+<div class="success" id="successMsg"></div>
+
+  </form>  <div class="product-list" id="productList"></div>  <script>
+    let products = JSON.parse(localStorage.getItem('products')) || [];
+    let editIndex = -1;
+
+    const form = document.getElementById('productForm');
+    const successMsg = document.getElementById('successMsg');
+    const productList = document.getElementById('productList');
+
+    function saveProducts() {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    function renderProducts() {
+      productList.innerHTML = '';
+      products.forEach((product, index) => {
+        const item = document.createElement('div');
+        item.className = 'product-item';
+        item.innerHTML = `
+          <img src="${product.image}" alt="صورة">
+          <div class="product-info">
+            <h3>${product.name}</h3>
+            <p>${product.desc}</p>
+            <strong>${product.price} د.ك</strong>
+          </div>
+          <div class="product-actions">
+            <button class="edit-btn" onclick="editProduct(${index})">تعديل</button>
+            <button class="delete-btn" onclick="deleteProduct(${index})">حذف</button>
+          </div>
+        `;
+        productList.appendChild(item);
+      });
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const desc = document.getElementById('desc').value;
+      const price = document.getElementById('price').value;
+      const imageInput = document.getElementById('image');
+      const file = imageInput.files[0];
+
+      const handleSubmit = (image) => {
+        const product = { name, desc, price, image };
+
+        if (editIndex > -1) {
+          products[editIndex] = product;
+          editIndex = -1;
+        } else {
+          products.push(product);
+        }
+
+        saveProducts();
+        renderProducts();
+        form.reset();
+        successMsg.textContent = "تم الحفظ بنجاح!";
+        setTimeout(() => successMsg.textContent = '', 3000);
+      };
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          handleSubmit(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        if (editIndex > -1) {
+          handleSubmit(products[editIndex].image); // احتفظ بالصورة القديمة عند التعديل
+        } else {
+          alert("يرجى اختيار صورة للمنتج.");
+        }
+      }
+    });
+
+    function deleteProduct(index) {
+      if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+        products.splice(index, 1);
+        saveProducts();
+        renderProducts();
+      }
+    }
+
+    function editProduct(index) {
+      const product = products[index];
+      document.getElementById('name').value = product.name;
+      document.getElementById('desc').value = product.desc;
+      document.getElementById('price').value = product.price;
+      editIndex = index;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedIn');
+      window.location.href = 'login.html';
+    }
+
+    renderProducts();
+  </script></body>
+</html>
